@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/8.0.40"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ru.ifmo.ctddev.segal.hw1.ui.controller.MainController">
+   <children>
+      <Label alignment="CENTER" contentDisplay="CENTER"
+             layoutX="204.0" layoutY="83.0"
+             prefHeight="106.0" prefWidth="192.0"
+             text="Халявка">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <Button fx:id="button" layoutX="232.0" layoutY="283.0" mnemonicParsing="false" prefHeight="70.0" prefWidth="136.0" text="Шляй" />
+   </children>
+</AnchorPane>
