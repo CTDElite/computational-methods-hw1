@@ -14,6 +14,6 @@ public class MainController {
 
     @FXML
     public void initialize(){
-        button.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> button.setText("Thanks!"));
+        button.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> button.setText("Pressed"));
     }
 }

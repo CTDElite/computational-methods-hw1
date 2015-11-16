@@ -15,11 +15,11 @@
       <Label alignment="CENTER" contentDisplay="CENTER"
              layoutX="204.0" layoutY="83.0"
              prefHeight="106.0" prefWidth="192.0"
-             text="Халявка">
+             text="Example">
          <font>
             <Font size="36.0" />
          </font>
       </Label>
-      <Button fx:id="button" layoutX="232.0" layoutY="283.0" mnemonicParsing="false" prefHeight="70.0" prefWidth="136.0" text="Шляй" />
+      <Button fx:id="button" layoutX="232.0" layoutY="283.0" mnemonicParsing="false" prefHeight="70.0" prefWidth="136.0" text="Button" />
    </children>
 </AnchorPane>
