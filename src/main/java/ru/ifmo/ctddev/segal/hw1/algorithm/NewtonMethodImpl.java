@@ -4,6 +4,9 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 import ru.ifmo.ctddev.segal.hw1.model.FunctionWithDerivative;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * @author Aleksei Latyshev
@@ -26,6 +29,26 @@ public class NewtonMethodImpl implements NewtonMethod {
         }
         if (found != -1) {
             return new Pair<>(current, found);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Complex> getPath(FunctionWithDerivative function, Complex begin) {
+        List<Complex> ans = new ArrayList<>();
+        Complex current = begin;
+        ans.add(current);
+        boolean found = false;
+        for (int it = 0; it < COUNT; it++) {
+            if (function.getValue(current).abs() < EPS) {
+                found = true;
+                break;
+            }
+            ans.add(current = current.subtract(function.getValue(current).divide(function.getDerivativeValue(current))));
+        }
+        if (found) {
+            return ans;
         } else {
             return null;
         }
