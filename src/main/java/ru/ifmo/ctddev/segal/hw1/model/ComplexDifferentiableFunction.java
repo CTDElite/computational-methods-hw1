@@ -5,9 +5,6 @@ import org.apache.commons.math3.complex.Complex;
 /**
  * @author Daniyar Itegulov
  */
-public interface FunctionWithDerivative {
-
-    Complex getValue(Complex x);
-
+public interface ComplexDifferentiableFunction extends Function<Complex> {
     Complex getDerivativeValue(Complex x);
 }

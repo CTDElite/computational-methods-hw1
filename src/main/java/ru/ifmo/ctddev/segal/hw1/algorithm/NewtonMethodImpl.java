@@ -2,7 +2,7 @@ package ru.ifmo.ctddev.segal.hw1.algorithm;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
-import ru.ifmo.ctddev.segal.hw1.model.FunctionWithDerivative;
+import ru.ifmo.ctddev.segal.hw1.model.ComplexDifferentiableFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class NewtonMethodImpl implements NewtonMethod {
     public static final int COUNT = 1_000;
 
     @Override
-    public Pair<Complex, Integer> getRoot(FunctionWithDerivative function, Complex begin) {
+    public Pair<Complex, Integer> getRoot(ComplexDifferentiableFunction function, Complex begin) {
         Complex current = begin;
         int found = -1;
         for (int it = 0; it < COUNT; it++) {
@@ -35,7 +35,7 @@ public class NewtonMethodImpl implements NewtonMethod {
     }
 
     @Override
-    public List<Complex> getPath(FunctionWithDerivative function, Complex begin) {
+    public List<Complex> getPath(ComplexDifferentiableFunction function, Complex begin) {
         List<Complex> ans = new ArrayList<>();
         Complex current = begin;
         ans.add(current);
