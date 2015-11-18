@@ -1,6 +1,7 @@
 package ru.ifmo.ctddev.segal.hw1.algorithm;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.util.Pair;
 import ru.ifmo.ctddev.segal.hw1.model.FunctionWithDerivative;
 
 
@@ -9,22 +10,22 @@ import ru.ifmo.ctddev.segal.hw1.model.FunctionWithDerivative;
  */
 
 public class NewtonMethodImpl implements NewtonMethod {
-    public static final double EPS = 1e-16;
+    public static final double EPS = 1e-12;
     public static final int COUNT = 1_000;
 
     @Override
-    public Complex getRoot(FunctionWithDerivative function, Complex begin) {
+    public Pair<Complex, Integer> getRoot(FunctionWithDerivative function, Complex begin) {
         Complex current = begin;
-        boolean found = false;
+        int found = -1;
         for (int it = 0; it < COUNT; it++) {
-            current = current.subtract(function.getValue(current).divide(function.getDerivativeValue(current)));
             if (function.getValue(current).abs() < EPS) {
-                found = true;
+                found = it;
                 break;
             }
+            current = current.subtract(function.getValue(current).divide(function.getDerivativeValue(current)));
         }
-        if (found) {
-            return current;
+        if (found != -1) {
+            return new Pair<>(current, found);
         } else {
             return null;
         }
