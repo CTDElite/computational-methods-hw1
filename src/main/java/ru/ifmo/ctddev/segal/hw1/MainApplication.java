@@ -17,7 +17,7 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        String fxmlFile = "/fxml/main.fxml";
+        String fxmlFile = "/fxml/newton_convergence.fxml";
         Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
         primaryStage.setTitle("Segal HW1");
         primaryStage.setScene(new Scene(root));
