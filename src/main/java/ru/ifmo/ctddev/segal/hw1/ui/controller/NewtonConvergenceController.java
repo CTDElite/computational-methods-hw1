@@ -1,5 +1,7 @@
 package ru.ifmo.ctddev.segal.hw1.ui.controller;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
@@ -10,6 +12,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
+import org.reactfx.Change;
+import org.reactfx.EventSource;
+import org.reactfx.EventStream;
+import org.reactfx.EventStreams;
+import org.reactfx.util.Tuple3;
+import org.reactfx.util.Tuples;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethod;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethodImpl;
 import ru.ifmo.ctddev.segal.hw1.model.ComplexZPowN;
@@ -40,59 +48,79 @@ public class NewtonConvergenceController {
     @FXML
     public ImageView mainChart;
 
+    volatile int height;
+    volatile int width;
+    volatile double xStep;
+    volatile double yStep;
+    volatile WritableImage writableImage;
+    volatile PixelWriter pixelWriter;
+
+    volatile ComplexZPowN zPowN;
+    volatile List<Complex> roots;
+    volatile List<Double> hues;
+
     @FXML
     @SuppressWarnings("unchecked")
     public void initialize() {
-        buildButton.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            ComplexZPowN zPowN = new ComplexZPowN(power.getValue());
+        EventStream<Number> widthChange = EventStreams.valuesOf(mainChart.fitWidthProperty());
+        EventStream<Number> heightChange = EventStreams.valuesOf(mainChart.fitHeightProperty());
+        EventStream<Number> sizeChange = EventStreams.merge(widthChange, heightChange);
 
-            int height = (int) mainChart.getFitHeight();
-            int width = (int) mainChart.getFitWidth();
+        sizeChange.subscribe(e -> {
+            System.out.println("ImageView was resized");
+            height = (int) mainChart.getFitHeight();
+            width = (int) mainChart.getFitWidth();
             System.out.format("Image size is %dx%d\n", width, height);
-            double xStep = (MAX_X - MIN_X) / width;
-            double yStep = (MAX_Y - MIN_Y) / height;
+            xStep = (MAX_X - MIN_X) / width;
+            yStep = (MAX_Y - MIN_Y) / height;
             System.out.format("Step on `x` is %f, step of `y` is %f\n", xStep, yStep);
-            WritableImage writableImage = new WritableImage(width, height);
-            PixelWriter pixelWriter = writableImage.getPixelWriter();
+            writableImage = new WritableImage(width, height);
+            pixelWriter = writableImage.getPixelWriter();
+        });
 
-            Pair<Complex, Integer>[][] results = new Pair[height][width];
-            double max = 0.0D;
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    double x = MIN_X + xStep * j;
-                    double y = MIN_Y + yStep * i;
-                    results[i][j] = newtonMethod.getRoot(zPowN, new Complex(x, y));
-                    if (results[i][j] != null) {
-                        max = Math.max(max, results[i][j].getSecond());
-                    }
-                }
-            }
+        EventStream<Integer> powerChange = EventStreams.valuesOf(power.valueProperty());
 
-            List<Complex> roots = zPowN.getRoots();
-            List<Double> hues = new ArrayList<>();
+        powerChange.subscribe(e -> {
+            System.out.format("New power of z is %d\n", e);
+            zPowN = new ComplexZPowN(power.getValue());
+            roots = zPowN.getRoots();
+            hues = new ArrayList<>();
 
             for (int i = 0; i < roots.size(); i++) {
                 hues.add(i * 1.0D / roots.size() * 360.0D);
             }
+        });
 
-            max += 2;
+        EventStream<MouseEvent> clicks = EventStreams.eventsOf(buildButton, MouseEvent.MOUSE_CLICKED);
+        EventSource<Tuple3<Integer, Integer, Pair<Complex, Integer>>> newtonResults = new EventSource<>();
+        clicks.subscribe(e -> {
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
-                    Pair<Complex, Integer> result = results[i][j];
-                    if (result == null) {
-                        pixelWriter.setColor(j, i, Color.WHITE);
-                    } else {
-                        pixelWriter.setColor(j, i, Color.WHITE);
-                        for (int k = 0; k < roots.size(); k++) {
-                            if (result.getFirst().subtract(roots.get(k)).abs() < EPS) {
-                                pixelWriter.setColor(j, i, Color.hsb(hues.get(k), 0.69, 1 - result.getSecond() / max));
-                                break;
-                            }
-                        }
-                    }
+                    double x = MIN_X + xStep * j;
+                    double y = MIN_Y + yStep * i;
+                    Pair<Complex, Integer> result = newtonMethod.getRoot(zPowN, new Complex(x, y));
+                    newtonResults.push(Tuples.t(j, i, result));
                 }
             }
             mainChart.setImage(writableImage);
+        });
+
+        newtonResults.subscribe(e -> {
+            int x = e._1;
+            int y = e._2;
+            Pair<Complex, Integer> result = e._3;
+
+            if (result == null) {
+                pixelWriter.setColor(x, y, Color.WHITE);
+            } else {
+                pixelWriter.setColor(x, y, Color.WHITE);
+                for (int k = 0; k < roots.size(); k++) {
+                    if (result.getFirst().subtract(roots.get(k)).abs() < EPS) {
+                        pixelWriter.setColor(x, y, Color.hsb(hues.get(k), 0.65, Math.max(0.1D, 1 - result.getSecond() / 50.0D)));
+                        break;
+                    }
+                }
+            }
         });
     }
 }
