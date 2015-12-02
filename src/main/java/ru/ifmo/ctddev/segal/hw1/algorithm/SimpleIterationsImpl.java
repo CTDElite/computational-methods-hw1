@@ -3,6 +3,7 @@ package ru.ifmo.ctddev.segal.hw1.algorithm;
 import ru.ifmo.ctddev.segal.hw1.model.Function;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
@@ -30,12 +31,32 @@ public class SimpleIterationsImpl implements SimpleIterations {
     }
 
     @Override
+    public Iterator<Double> applyMethod(Function<Double> x, double start) {
+        return new Iterator<Double>() {
+            double current = start;
+
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public Double next() {
+                double retv = current;
+                current -= x.getValue(current) * lambda;
+                return retv;
+            }
+        };
+    }
+
+    @Override
     public Collection<Double> getAllLimits(Function<Double> function, double start) {
+        Iterator<Double> processed = applyMethod(function, start);
         for (int i = 0; i < prepare; i++)
-            start -= function.getValue(start) * lambda;
+            processed.next();
         NavigableSet<Double> result = new TreeSet<>();
         for (int i = 0; i < nPoints; i++) {
-            start -= function.getValue(start) * lambda;
+            start = processed.next();
             Double nearby = result.ceiling(start);
             if (nearby != null && nearby - start < epsilon)
                 continue;
