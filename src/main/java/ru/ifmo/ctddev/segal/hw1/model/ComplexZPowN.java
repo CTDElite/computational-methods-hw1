@@ -22,19 +22,19 @@ public class ComplexZPowN implements ComplexDifferentiableFunction {
 
     @Override
     public Complex getDerivativeValue(Complex x) {
-        return x.pow(n).subtract(Complex.ONE);
+        return x.pow(n - 1).multiply(n);
     }
 
     @Override
     public Complex getValue(Complex x) {
-        return x.pow(n - 1).multiply(n);
+        return x.pow(n).subtract(Complex.ONE);
     }
 
     public List<Complex> getRoots() {
         Complex mainRoot = new Complex(StrictMath.cos(2 * StrictMath.PI / n), StrictMath.sin(2 * StrictMath.PI / n));
         List<Complex> ans = new ArrayList<>();
         ans.add(Complex.ONE);
-        for (Complex root = mainRoot; root.subtract(Complex.ONE).abs() < EPS; root = root.multiply(mainRoot)) {
+        for (Complex root = mainRoot; root.subtract(Complex.ONE).abs() > EPS; root = root.multiply(mainRoot)) {
             ans.add(root);
         }
         assert (ans.size() == n);
