@@ -50,6 +50,18 @@ public class SimpleIterationsImpl implements SimpleIterations {
     }
 
     @Override
+    public Double getSlicedLimit(Function<Double> x, double start, int fIndex, int step) {
+        Iterator<Double> iterator = applyMethod(x, start);
+        for (int i = 0; i < fIndex + step * prepare; i++)
+            iterator.next();
+        double xCur = iterator.next();
+        double xNext = xCur;
+        for (int i = 0; i < step; i++)
+            xNext = iterator.next();
+        return Math.abs(xNext - xCur) < epsilon ? xNext : null;
+    }
+
+    @Override
     public Collection<Double> getAllLimits(Function<Double> function, double start) {
         Iterator<Double> processed = applyMethod(function, start);
         for (int i = 0; i < prepare; i++)

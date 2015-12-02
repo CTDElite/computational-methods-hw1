@@ -12,4 +12,7 @@ import java.util.List;
 public interface SimpleIterations {
     Collection<Double> getAllLimits(Function<Double> x, double start);
     Iterator<Double> applyMethod(Function<Double> x, double start);
+
+    /** @return a limit of x_(fIndex + step * i) or null if it has not been found */
+    Double getSlicedLimit(Function<Double> x, double start, int fIndex, int step);
 }
