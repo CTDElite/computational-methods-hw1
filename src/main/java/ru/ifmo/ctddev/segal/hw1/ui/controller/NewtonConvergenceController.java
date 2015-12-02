@@ -1,7 +1,5 @@
 package ru.ifmo.ctddev.segal.hw1.ui.controller;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
@@ -12,7 +10,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
-import org.reactfx.Change;
 import org.reactfx.EventSource;
 import org.reactfx.EventStream;
 import org.reactfx.EventStreams;

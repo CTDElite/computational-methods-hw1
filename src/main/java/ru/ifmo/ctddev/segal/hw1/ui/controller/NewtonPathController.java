@@ -1,36 +1,22 @@
 package ru.ifmo.ctddev.segal.hw1.ui.controller;
 
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Rectangle;
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.util.Pair;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethod;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethodImpl;
 import ru.ifmo.ctddev.segal.hw1.model.ComplexDifferentiableFunction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
