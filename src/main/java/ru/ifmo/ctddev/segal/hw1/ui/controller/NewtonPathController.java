@@ -28,7 +28,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethod;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethodImpl;
-import ru.ifmo.ctddev.segal.hw1.model.FunctionWithDerivative;
+import ru.ifmo.ctddev.segal.hw1.model.ComplexDifferentiableFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class NewtonPathController {
 
     private NewtonMethod newtonMethod = new NewtonMethodImpl();
 
-    private FunctionWithDerivative zCube = new FunctionWithDerivative() {
+    private ComplexDifferentiableFunction zCube = new ComplexDifferentiableFunction() {
         @Override
         public Complex getValue(Complex x) {
             return x.pow(3).subtract(Complex.ONE);
