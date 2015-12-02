@@ -12,7 +12,10 @@
     <left>
         <FlowPane orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <children>
-                <Spinner fx:id="power" min="2" max="15" initialValue="3">
+                <Spinner fx:id="power">
+                    <valueFactory>
+                        <SpinnerValueFactory.IntegerSpinnerValueFactory min="2" max="15" initialValue="3"/>
+                    </valueFactory>
                 </Spinner>
                 <Button fx:id="buildButton" mnemonicParsing="false" text="Build" />
             </children>
