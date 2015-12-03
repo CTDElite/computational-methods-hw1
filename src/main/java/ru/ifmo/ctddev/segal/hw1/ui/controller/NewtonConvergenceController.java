@@ -14,8 +14,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 import org.reactfx.EventStream;
 import org.reactfx.EventStreams;
-import org.reactfx.TriEventSource;
-import org.reactfx.util.Tuples;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethod;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethodImpl;
 import ru.ifmo.ctddev.segal.hw1.model.ComplexZPowN;
@@ -32,10 +30,10 @@ public class NewtonConvergenceController {
 
     private static final double EPS = 1e-6;
 
-    private static final double MIN_X = -100.0D;
-    private static final double MAX_X = 100.0D;
-    private static final double MIN_Y = -100.0D;
-    private static final double MAX_Y = 100.0D;
+    private static final double MIN_X = -10.0D;
+    private static final double MAX_X = 10.0D;
+    private static final double MIN_Y = -10.0D;
+    private static final double MAX_Y = 10.0D;
 
     @FXML
     public Spinner<Integer> power;
@@ -97,36 +95,44 @@ public class NewtonConvergenceController {
         });
 
         EventStream<MouseEvent> clicks = EventStreams.eventsOf(buildButton, MouseEvent.MOUSE_CLICKED);
-        TriEventSource<Integer, Integer, Pair<Complex, Integer>> newtonResults = new TriEventSource<>();
         Runnable draw = () -> {
+            final ComplexZPowN zPowN = NewtonConvergenceController.this.zPowN;
+            final List<Complex> roots = NewtonConvergenceController.this.roots;
+            final List<Double> hues = NewtonConvergenceController.this.hues;
             Platform.runLater(() -> mainChart.setImage(null));
+            Pair<Complex, Integer>[][] results = new Pair[height][width];
+            int max = 0;
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     double x = MIN_X + xStep * j;
                     double y = MIN_Y + yStep * i;
-                    Pair<Complex, Integer> result = newtonMethod.getRoot(zPowN, new Complex(x, y));
-                    newtonResults.push(Tuples.t(j, i, result));
+                    results[i][j] = newtonMethod.getRoot(zPowN, new Complex(x, y));
+                    max = Math.max(max, results[i][j] == null ? 0 : results[i][j].getSecond());
                 }
                 final int fi = i;
                 Platform.runLater(() -> progressBar.setProgress((1.0D + fi) / height));
             }
+
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    Pair<Complex, Integer> result = results[i][j];
+                    if (result == null) {
+                        pixelWriter.setColor(j, i, Color.WHITE);
+                    } else {
+                        pixelWriter.setColor(j, i, Color.WHITE);
+                        for (int k = 0; k < roots.size(); k++) {
+                            if (result.getFirst().subtract(roots.get(k)).abs() < EPS) {
+                                pixelWriter.setColor(j, i, Color.hsb(hues.get(k), 0.65, Math.max(0.1D, 1 - result.getSecond() * 1.0D / max)));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             Platform.runLater(() -> mainChart.setImage(writableImage));
         };
 
         clicks.subscribe(e -> executorService.submit(draw));
-
-        newtonResults.subscribe((x, y, result)  -> {
-            if (result == null) {
-                pixelWriter.setColor(x, y, Color.WHITE);
-            } else {
-                pixelWriter.setColor(x, y, Color.WHITE);
-                for (int k = 0; k < roots.size(); k++) {
-                    if (result.getFirst().subtract(roots.get(k)).abs() < EPS) {
-                        pixelWriter.setColor(x, y, Color.hsb(hues.get(k), 0.65, Math.max(0.1D, 1 - result.getSecond() / 50.0D)));
-                        break;
-                    }
-                }
-            }
-        });
     }
 }
