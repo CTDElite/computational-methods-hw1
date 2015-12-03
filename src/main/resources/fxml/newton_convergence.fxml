@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
@@ -18,10 +19,11 @@
         </FlowPane>
     </left>
    <center>
-      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER" fx:id="stackPane">
          <children>
-             <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="519.0" progress="0.0" />
-             <ImageView fx:id="mainChart" fitHeight="637.0" fitWidth="675.0" pickOnBounds="true" preserveRatio="true" />
+             <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="691.0" progress="0.0" />
+             <ImageView fx:id="mainChart" fitHeight="518.0" fitWidth="691.0" pickOnBounds="true" preserveRatio="true" />
+             <Canvas fx:id="canvas" height="518.0" width="691.0" />
          </children>
       </StackPane>
    </center>

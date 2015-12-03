@@ -2,6 +2,9 @@ package ru.ifmo.ctddev.segal.hw1.ui.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Spinner;
@@ -9,22 +12,27 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
 import org.reactfx.EventStream;
 import org.reactfx.EventStreams;
+import org.reactfx.Subscription;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethod;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethodImpl;
+import ru.ifmo.ctddev.segal.hw1.model.ComplexDifferentiableFunction;
 import ru.ifmo.ctddev.segal.hw1.model.ComplexZPowN;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
- * @author Daniyar Itegulov
+ * @author Daniyar Itegulov, Ignat Loskutov
  */
 public class NewtonConvergenceController {
 
@@ -36,7 +44,7 @@ public class NewtonConvergenceController {
     private static final double MAX_Y = 10.0D;
 
     private static final int MAX_CONVERGENCE_STEPS = 10;
-    public static final double DEFAULT_SATURATION = 0.55;
+    public static final double DEFAULT_SATURATION = 2.0D/3;
 
     @FXML
     public Spinner<Integer> power;
@@ -52,6 +60,12 @@ public class NewtonConvergenceController {
     @FXML
     public ProgressBar progressBar;
 
+    @FXML
+    public Canvas canvas;
+
+    @FXML
+    public StackPane stackPane;
+
     volatile int height;
     volatile int width;
     volatile double xStep;
@@ -63,11 +77,34 @@ public class NewtonConvergenceController {
     volatile List<Complex> roots;
     volatile List<Double> hues;
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private Executor executor = Executors.newSingleThreadExecutor();
+    private Subscription subscription;
+
+    private Consumer<MouseEvent> pathDrawer(ComplexDifferentiableFunction f) {
+        return e -> {
+            double beginX = (-stackPane.getWidth() / 2 + e.getX()) * xStep;
+            double beginY = (stackPane.getHeight() / 2 - e.getY()) * yStep;
+
+            List<Point2D> coordList = newtonMethod.getPath(f, new Complex(beginX, beginY)).stream()
+                    .map(this::mapZ).collect(Collectors.toList());
+
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            gc.setLineWidth(2);
+
+            for (int i = 1; i < coordList.size(); i++) {
+                Point2D oldPoint = coordList.get(i - 1);
+                Point2D newPoint = coordList.get(i);
+                gc.strokeLine(oldPoint.getX(), oldPoint.getY(), newPoint.getX(), newPoint.getY());
+            }
+        };
+    }
 
     @FXML
     @SuppressWarnings("unchecked")
     public void initialize() {
+
         EventStream<Number> widthChange = EventStreams.valuesOf(mainChart.fitWidthProperty());
         EventStream<Number> heightChange = EventStreams.valuesOf(mainChart.fitHeightProperty());
         EventStream<Number> sizeChange = EventStreams.merge(widthChange, heightChange);
@@ -93,16 +130,16 @@ public class NewtonConvergenceController {
             hues = new ArrayList<>();
 
             for (int i = 0; i < roots.size(); i++) {
-                hues.add(i * 1.0D / roots.size() * 360.0D);
+                hues.add(i * 360.0D / roots.size());
             }
         });
 
-        EventStream<MouseEvent> clicks = EventStreams.eventsOf(buildButton, MouseEvent.MOUSE_CLICKED);
+        EventStream<MouseEvent> buildClicks = EventStreams.eventsOf(buildButton, MouseEvent.MOUSE_CLICKED);
+        EventStream<MouseEvent> canvasClicks = EventStreams.eventsOf(stackPane, MouseEvent.MOUSE_CLICKED);
+
         Runnable draw = () -> {
-            final int n = NewtonConvergenceController.this.power.getValue();
-            final ComplexZPowN zPowN = NewtonConvergenceController.this.zPowN;
-            final List<Complex> roots = NewtonConvergenceController.this.roots;
-            final List<Double> hues = NewtonConvergenceController.this.hues;
+            canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            final int n = power.getValue();
             Platform.runLater(() -> mainChart.setImage(null));
             Pair<Complex, Integer>[][] results = new Pair[height][width];
             double max = 0;
@@ -125,16 +162,15 @@ public class NewtonConvergenceController {
                 for (int j = 0; j < width; j++) {
                     Pair<Complex, Integer> result = results[i][j];
                     if (result == null) {
-                        pixelWriter.setColor(j, i, Color.YELLOW);
+                        pixelWriter.setColor(j, i, Color.BLACK);
                     } else {
                         for (int k = 0; k < roots.size(); k++) {
                             if (result.getFirst().subtract(roots.get(k)).abs() < EPS) {
-                                if (result.getSecond() >= MAX_CONVERGENCE_STEPS * n) {
-                                    pixelWriter.setColor(j, i, Color.hsb(hues.get(k), DEFAULT_SATURATION, 0.1D));
-                                } else {
-                                    pixelWriter.setColor(j, i,
-                                            Color.hsb(hues.get(k), DEFAULT_SATURATION, 1.0D - result.getSecond() / max));
-                                }
+                                pixelWriter.setColor(j, i, Color.hsb(hues.get(k),  DEFAULT_SATURATION,
+                                        (result.getSecond() < MAX_CONVERGENCE_STEPS * n)
+                                                ? 1.0D - result.getSecond() / max
+                                                : 0.1D)
+                                );
                                 break;
                             }
                         }
@@ -143,8 +179,26 @@ public class NewtonConvergenceController {
             }
 
             Platform.runLater(() -> mainChart.setImage(writableImage));
+
+            if (subscription != null) {
+                subscription.unsubscribe();
+            }
+            subscription = canvasClicks.subscribe(pathDrawer(zPowN));
         };
 
-        clicks.subscribe(e -> executorService.submit(draw));
+        buildClicks.subscribe(e -> executor.execute(draw));
     }
+
+    private double mapX(double x) {
+        return canvas.getWidth() / 2 + x / xStep;
+    }
+
+    private double mapY(double y) {
+        return canvas.getHeight() / 2 - y / yStep;
+    }
+
+    private Point2D mapZ(Complex z) {
+        return new Point2D(mapX(z.getReal()), mapY(z.getImaginary()));
+    }
+
 }
