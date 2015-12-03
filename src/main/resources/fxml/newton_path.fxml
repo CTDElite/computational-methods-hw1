@@ -8,7 +8,9 @@
     <left>
         <FlowPane orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <children>
+                <Label text=" x:" />
                 <TextField fx:id="xTextField" />
+                <Label text=" y:" />
                 <TextField fx:id="yTextField" />
                 <Button fx:id="buildButton" mnemonicParsing="false" text="Build" />
             </children>
