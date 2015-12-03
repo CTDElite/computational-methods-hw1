@@ -21,23 +21,15 @@ public class ComplexZPowN implements ComplexDifferentiableFunction {
     }
 
     private static Complex power(Complex z, int n) {
-        if (n <= 3) {
-            Complex result = Complex.ONE;
-            for (int i = 0; i < n; i++) {
+        Complex result = Complex.ONE;
+        while (n > 0) {
+            if (n % 2 == 1) {
                 result = result.multiply(z);
             }
-            return result;
-        } else {
-            Complex result = Complex.ONE;
-            while (n > 0) {
-                if (n % 2 == 1) {
-                    result = result.multiply(z);
-                }
-                z = z.multiply(z);
-                n /= 2;
-            }
-            return result;
+            z = z.multiply(z);
+            n /= 2;
         }
+        return result;
     }
 
     @Override
