@@ -35,6 +35,9 @@ public class NewtonConvergenceController {
     private static final double MIN_Y = -10.0D;
     private static final double MAX_Y = 10.0D;
 
+    private static final int MAX_CONVERGENCE_STEPS = 10;
+    public static final double DEFAULT_SATURATION = 0.55;
+
     @FXML
     public Spinner<Integer> power;
 
@@ -60,7 +63,7 @@ public class NewtonConvergenceController {
     volatile List<Complex> roots;
     volatile List<Double> hues;
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @FXML
     @SuppressWarnings("unchecked")
@@ -96,18 +99,23 @@ public class NewtonConvergenceController {
 
         EventStream<MouseEvent> clicks = EventStreams.eventsOf(buildButton, MouseEvent.MOUSE_CLICKED);
         Runnable draw = () -> {
+            final int n = NewtonConvergenceController.this.power.getValue();
             final ComplexZPowN zPowN = NewtonConvergenceController.this.zPowN;
             final List<Complex> roots = NewtonConvergenceController.this.roots;
             final List<Double> hues = NewtonConvergenceController.this.hues;
             Platform.runLater(() -> mainChart.setImage(null));
             Pair<Complex, Integer>[][] results = new Pair[height][width];
-            int max = 0;
+            double max = 0;
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     double x = MIN_X + xStep * j;
                     double y = MIN_Y + yStep * i;
                     results[i][j] = newtonMethod.getRoot(zPowN, new Complex(x, y));
-                    max = Math.max(max, results[i][j] == null ? 0 : results[i][j].getSecond());
+                    if (results[i][j] != null) {
+                        if (results[i][j].getSecond() < MAX_CONVERGENCE_STEPS * n) {
+                            max = Math.max(max, results[i][j].getSecond());
+                        }
+                    }
                 }
                 final int fi = i;
                 Platform.runLater(() -> progressBar.setProgress((1.0D + fi) / height));
@@ -117,12 +125,16 @@ public class NewtonConvergenceController {
                 for (int j = 0; j < width; j++) {
                     Pair<Complex, Integer> result = results[i][j];
                     if (result == null) {
-                        pixelWriter.setColor(j, i, Color.WHITE);
+                        pixelWriter.setColor(j, i, Color.YELLOW);
                     } else {
-                        pixelWriter.setColor(j, i, Color.WHITE);
                         for (int k = 0; k < roots.size(); k++) {
                             if (result.getFirst().subtract(roots.get(k)).abs() < EPS) {
-                                pixelWriter.setColor(j, i, Color.hsb(hues.get(k), 0.65, Math.max(0.1D, 1 - result.getSecond() * 1.0D / max)));
+                                if (result.getSecond() >= MAX_CONVERGENCE_STEPS * n) {
+                                    pixelWriter.setColor(j, i, Color.hsb(hues.get(k), DEFAULT_SATURATION, 0.1D));
+                                } else {
+                                    pixelWriter.setColor(j, i,
+                                            Color.hsb(hues.get(k), DEFAULT_SATURATION, 1.0D - result.getSecond() / max));
+                                }
                                 break;
                             }
                         }
