@@ -20,14 +20,34 @@ public class ComplexZPowN implements ComplexDifferentiableFunction {
         this.n = n;
     }
 
+    private static Complex power(Complex z, int n) {
+        if (n <= 3) {
+            Complex result = Complex.ONE;
+            for (int i = 0; i < n; i++) {
+                result = result.multiply(z);
+            }
+            return result;
+        } else {
+            Complex result = Complex.ONE;
+            while (n > 0) {
+                if (n % 2 == 1) {
+                    result = result.multiply(z);
+                }
+                z = z.multiply(z);
+                n /= 2;
+            }
+            return result;
+        }
+    }
+
     @Override
     public Complex getDerivativeValue(Complex x) {
-        return x.pow(n - 1).multiply(n);
+        return power(x, n - 1).multiply(n);
     }
 
     @Override
     public Complex getValue(Complex x) {
-        return x.pow(n).subtract(Complex.ONE);
+        return power(x, n).subtract(Complex.ONE);
     }
 
     public List<Complex> getRoots() {
