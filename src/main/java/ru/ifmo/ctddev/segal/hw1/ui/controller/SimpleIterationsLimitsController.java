@@ -5,7 +5,10 @@ import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ScatterChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
@@ -26,10 +29,10 @@ import java.util.Iterator;
 public class SimpleIterationsLimitsController {
     private static final double EPS = 1e-6;
 
-    private static final double MIN_X = -4.1;
-    private static final double MAX_X = 4.1D;
-    private static final double MIN_Y = -20.0D;
-    private static final double MAX_Y = 20.0D;
+    private static final double MIN_X = 0;
+    private static final double MAX_X = 4.2D;
+    private static final double MIN_Y = 0;
+    private static final double MAX_Y = 1;
 
     @FXML
     public TextField rTextField;
@@ -69,99 +72,30 @@ public class SimpleIterationsLimitsController {
     @FXML
     @SuppressWarnings("unchecked")
     public void initialize() {
-        Axes axes = new Axes((int) canvas.getHeight(), (int) canvas.getWidth(),
-                MIN_X, MAX_X, 1, MIN_Y, MAX_Y, 1);
-        stackPane.getChildren().add(axes);
+        final NumberAxis xAxis = new NumberAxis(MIN_X, MAX_X, 0.1);
+        final NumberAxis yAxis = new NumberAxis(MIN_Y, MAX_Y, 0.1);
+        final XYChart<Number, Number> sc = new
+                ScatterChart<Number, Number>(xAxis, yAxis);
+        xAxis.setLabel("r");
+        yAxis.setLabel("limit");
+        sc.setTitle("Simple Iterations Limits");
+
+        XYChart.Series series1 = new XYChart.Series();
+        sc.getData().add(series1);
+        stackPane.getChildren().add(sc);
         buildButton.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             limitR = Double.parseDouble(rTextField.getText());
             start = Double.parseDouble(stTextField.getText());
-
-
-            int height = (int) canvas.getHeight();
-            int width = (int) canvas.getWidth();
-
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-
-            gc.clearRect(0, 0, width, height);
+            series1.getData().clear();
             for (double rr = 0; rr <= limitR; rr += 0.02) {
                 r = rr;
                 Collection<Double> current = simpleIters.getAllLimits(rFun, start);
-                //System.out.println("r = " + r + ", [" + current.size() + "] " + current);
-                for (Double prevY : current) {
-
-                    Double prevX = (double) r;
-                    Double curY = prevY;
+                for (Double curY : current) {
                     Double curX = (double) r;
-                    //System.out.printf("(%f, %f, %f, %f)\n", prevX, prevY, curX, curY);
-                    gc.strokeLine(
-                            mapX(prevX - 2.75, axes),
-                            mapY(prevY * 10 + 5.0, axes),
-                            mapX(curX + 0.01 - 2.75, axes),
-                            mapY(curY * 10 + 0.01 + 5.0, axes));
-//                    x += 0.02;
+                    series1.getData().add(new XYChart.Data(curX, curY));
                 }
                 System.out.println("Printed path on chart");
             }
         });
     }
-
-    private double mapX(double x, Axes axes) {
-        double tx = axes.getPrefWidth() / 2;
-        double sx = axes.getPrefWidth() /
-                (axes.getXAxis().getUpperBound() -
-                        axes.getXAxis().getLowerBound());
-
-        return x * sx + tx;
-    }
-
-    private double mapY(double y, Axes axes) {
-        double ty = axes.getPrefHeight() / 2;
-        double sy = axes.getPrefHeight() /
-                (axes.getYAxis().getUpperBound() -
-                        axes.getYAxis().getLowerBound());
-
-        return -y * sy + ty;
-    }
-
-    private static class Axes extends Pane {
-        private NumberAxis xAxis;
-        private NumberAxis yAxis;
-
-        public Axes(
-                int width, int height,
-                double xLow, double xHi, double xTickUnit,
-                double yLow, double yHi, double yTickUnit) {
-            setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-            setPrefSize(width, height);
-            setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-
-            xAxis = new NumberAxis(xLow, xHi, xTickUnit);
-            xAxis.setSide(Side.BOTTOM);
-            xAxis.setMinorTickVisible(false);
-            xAxis.setPrefWidth(width);
-            xAxis.setLayoutY(height / 2);
-
-            yAxis = new NumberAxis(yLow, yHi, yTickUnit);
-            yAxis.setSide(Side.LEFT);
-            yAxis.setMinorTickVisible(false);
-            yAxis.setPrefHeight(height);
-            yAxis.layoutXProperty().bind(
-                    Bindings.subtract(
-                            (width / 2) + 1,
-                            yAxis.widthProperty()
-                    )
-            );
-
-            getChildren().setAll(xAxis, yAxis);
-        }
-
-        public NumberAxis getXAxis() {
-            return xAxis;
-        }
-
-        public NumberAxis getYAxis() {
-            return yAxis;
-        }
-    }
-
 }
