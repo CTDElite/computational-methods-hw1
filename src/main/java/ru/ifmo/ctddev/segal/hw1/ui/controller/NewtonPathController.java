@@ -60,8 +60,8 @@ public class NewtonPathController {
         }
     };
 
-    @FXML
-    public ImageView mainChart;
+//    @FXML
+//    public ImageView mainChart;
 
     @FXML
     @SuppressWarnings("unchecked")

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="636.0" prefWidth="1028.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.ifmo.ctddev.segal.hw1.ui.controller.NewtonConvergenceController">
+<BorderPane prefHeight="636.0" prefWidth="1028.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.ifmo.ctddev.segal.hw1.ui.controller.NewtonConvergenceController">
     <left>
         <FlowPane orientation="VERTICAL" prefHeight="636.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <children>
@@ -14,15 +13,15 @@
                         <SpinnerValueFactory.IntegerSpinnerValueFactory initialValue="3" max="15" min="2" />
                     </valueFactory>
                 </Spinner>
-                <Button fx:id="buildButton" mnemonicParsing="false" text="Build" />
+                <Button fx:id="buildButton" text="Build" />
             </children>
         </FlowPane>
     </left>
    <center>
       <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-              <ImageView fx:id="mainChart" fitHeight="637.0" fitWidth="675.0" pickOnBounds="true" preserveRatio="true" />
-            <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="519.0" progress="0.0" />
+             <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="519.0" progress="0.0" />
+             <ImageView fx:id="mainChart" fitHeight="637.0" fitWidth="675.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </StackPane>
    </center>

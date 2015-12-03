@@ -1,7 +1,9 @@
 package ru.ifmo.ctddev.segal.hw1.ui.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Spinner;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
@@ -10,10 +12,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Pair;
-import org.reactfx.EventSource;
 import org.reactfx.EventStream;
 import org.reactfx.EventStreams;
-import org.reactfx.util.Tuple3;
+import org.reactfx.TriEventSource;
 import org.reactfx.util.Tuples;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethod;
 import ru.ifmo.ctddev.segal.hw1.algorithm.NewtonMethodImpl;
@@ -21,6 +22,8 @@ import ru.ifmo.ctddev.segal.hw1.model.ComplexZPowN;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Daniyar Itegulov
@@ -45,6 +48,9 @@ public class NewtonConvergenceController {
     @FXML
     public ImageView mainChart;
 
+    @FXML
+    public ProgressBar progressBar;
+
     volatile int height;
     volatile int width;
     volatile double xStep;
@@ -55,6 +61,8 @@ public class NewtonConvergenceController {
     volatile ComplexZPowN zPowN;
     volatile List<Complex> roots;
     volatile List<Double> hues;
+
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @FXML
     @SuppressWarnings("unchecked")
@@ -89,8 +97,9 @@ public class NewtonConvergenceController {
         });
 
         EventStream<MouseEvent> clicks = EventStreams.eventsOf(buildButton, MouseEvent.MOUSE_CLICKED);
-        EventSource<Tuple3<Integer, Integer, Pair<Complex, Integer>>> newtonResults = new EventSource<>();
-        clicks.subscribe(e -> {
+        TriEventSource<Integer, Integer, Pair<Complex, Integer>> newtonResults = new TriEventSource<>();
+        Runnable draw = () -> {
+            Platform.runLater(() -> mainChart.setImage(null));
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     double x = MIN_X + xStep * j;
@@ -98,15 +107,15 @@ public class NewtonConvergenceController {
                     Pair<Complex, Integer> result = newtonMethod.getRoot(zPowN, new Complex(x, y));
                     newtonResults.push(Tuples.t(j, i, result));
                 }
+                final int fi = i;
+                Platform.runLater(() -> progressBar.setProgress((1.0D + fi) / height));
             }
-            mainChart.setImage(writableImage);
-        });
+            Platform.runLater(() -> mainChart.setImage(writableImage));
+        };
 
-        newtonResults.subscribe(e -> {
-            int x = e._1;
-            int y = e._2;
-            Pair<Complex, Integer> result = e._3;
+        clicks.subscribe(e -> executorService.submit(draw));
 
+        newtonResults.subscribe((x, y, result)  -> {
             if (result == null) {
                 pixelWriter.setColor(x, y, Color.WHITE);
             } else {
