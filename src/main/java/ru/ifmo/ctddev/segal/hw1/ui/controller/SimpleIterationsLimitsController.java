@@ -44,9 +44,6 @@ public class SimpleIterationsLimitsController {
     public Button buildButton;
 
     @FXML
-    public Canvas canvas;
-
-    @FXML
     public StackPane stackPane;
 
     private double r;
@@ -82,6 +79,7 @@ public class SimpleIterationsLimitsController {
 
         XYChart.Series series1 = new XYChart.Series();
         sc.getData().add(series1);
+        sc.getStylesheets().add("Chart.css");
         stackPane.getChildren().add(sc);
         buildButton.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             limitR = Double.parseDouble(rTextField.getText());
