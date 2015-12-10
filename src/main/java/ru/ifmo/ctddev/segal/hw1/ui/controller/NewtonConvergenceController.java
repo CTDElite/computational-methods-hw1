@@ -12,7 +12,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Spinner;
+import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -52,10 +52,8 @@ public class NewtonConvergenceController {
     public static final double DEFAULT_SATURATION = 2.0D/3;
 
     @FXML
-    public Spinner<Integer> power;
-
-    @FXML
     public Button buildButton;
+    public Slider powerSlider;
 
     private NewtonMethod newtonMethod = new NewtonMethodImpl();
 
@@ -126,11 +124,11 @@ public class NewtonConvergenceController {
             pixelWriter = writableImage.getPixelWriter();
         });
 
-        EventStream<Integer> powerChange = EventStreams.valuesOf(power.valueProperty());
+        EventStream<Number> powerChange = EventStreams.valuesOf(powerSlider.valueProperty());
 
         powerChange.subscribe(e -> {
-            System.out.format("New power of z is %d\n", e);
-            zPowN = new ComplexZPowN(power.getValue());
+            System.out.format("New power of z is %s\n", e.toString());
+            zPowN = new ComplexZPowN((int)Math.round(powerSlider.getValue()));
             roots = zPowN.getRoots();
             hues = new ArrayList<>();
 
@@ -149,7 +147,7 @@ public class NewtonConvergenceController {
         Runnable draw = () -> {
             canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
             chart.setVisible(false);
-            final int n = power.getValue();
+            final int n = (int) Math.round(powerSlider.getValue());
             Platform.runLater(() -> mainChart.setImage(null));
             Pair<Complex, Integer>[][] results = new Pair[height][width];
             double max = 0;

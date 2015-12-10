@@ -5,15 +5,14 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.geometry.Insets?>
 <BorderPane prefHeight="636.0" prefWidth="1028.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.ifmo.ctddev.segal.hw1.ui.controller.NewtonConvergenceController">
     <left>
         <FlowPane orientation="VERTICAL" prefHeight="636.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <padding><Insets top="10" right="0" bottom="0" left="10"/></padding>
             <children>
-                <Spinner fx:id="power">
-                    <valueFactory>
-                        <SpinnerValueFactory.IntegerSpinnerValueFactory initialValue="3" max="15" min="2" />
-                    </valueFactory>
-                </Spinner>
+                <Slider fx:id="powerSlider" min="2" max="8" value="3" blockIncrement="1" showTickMarks="true"
+                        minorTickCount="0" majorTickUnit="1" showTickLabels="true" snapToTicks="true"/>
                 <Button fx:id="buildButton" text="Build" />
             </children>
         </FlowPane>
