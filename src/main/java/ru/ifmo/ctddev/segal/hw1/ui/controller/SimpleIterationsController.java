@@ -93,6 +93,7 @@ public class SimpleIterationsController {
 
         XYChart.Series series1 = new XYChart.Series();
         sc.getData().add(series1);
+        sc.getStylesheets().add("Chart.css");
         stackPane.getChildren().add(sc);
 
         buildButton.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
