@@ -2,9 +2,14 @@ package ru.ifmo.ctddev.segal.hw1.ui.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.Axis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Spinner;
@@ -136,9 +141,14 @@ public class NewtonConvergenceController {
 
         EventStream<MouseEvent> buildClicks = EventStreams.eventsOf(buildButton, MouseEvent.MOUSE_CLICKED);
         EventStream<MouseEvent> canvasClicks = EventStreams.eventsOf(stackPane, MouseEvent.MOUSE_CLICKED);
+        Axis<Number> xAxis = new NumberAxis(MIN_X, MAX_X, 1.0D);
+        Axis<Number> yAxis = new NumberAxis(MIN_Y, MAX_Y, 1.0D);
 
+        XYChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
+        chart.setVisible(false);
         Runnable draw = () -> {
             canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            chart.setVisible(false);
             final int n = power.getValue();
             Platform.runLater(() -> mainChart.setImage(null));
             Pair<Complex, Integer>[][] results = new Pair[height][width];
@@ -178,7 +188,7 @@ public class NewtonConvergenceController {
                 }
             }
 
-            Platform.runLater(() -> mainChart.setImage(writableImage));
+            Platform.runLater(() -> { mainChart.setImage(writableImage); chart.setVisible(true); });
 
             if (subscription != null) {
                 subscription.unsubscribe();
@@ -187,6 +197,16 @@ public class NewtonConvergenceController {
         };
 
         buildClicks.subscribe(e -> executor.execute(draw));
+
+
+
+        chart.setPadding(new Insets(49, 60, 26, 30));
+
+        chart.setHorizontalGridLinesVisible(false);
+        chart.setVerticalGridLinesVisible(false);
+        chart.getStylesheets().add("Newton.css");
+
+        stackPane.getChildren().add(chart);
     }
 
     private double mapX(double x) {

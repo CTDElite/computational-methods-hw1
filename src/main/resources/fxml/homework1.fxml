@@ -2,7 +2,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 <TabPane xmlns:fx="http://javafx.com/fxml/1">
-    <Tab text="[2] Convergence areas" closable="false"><fx:include source="newton_convergence.fxml"/></Tab>
     <Tab text="[1] Simple Iterations" closable="false"><fx:include source="simple_iterations.fxml"/></Tab>
     <Tab text="[1] Simple Iterations Limits" closable="false"><fx:include source="simple_iterations_limits.fxml"/></Tab>
+    <Tab text="[2] Convergence areas" closable="false"><fx:include source="newton_convergence.fxml"/></Tab>
 </TabPane>

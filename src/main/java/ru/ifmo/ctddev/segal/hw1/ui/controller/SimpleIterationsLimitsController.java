@@ -1,11 +1,6 @@
 package ru.ifmo.ctddev.segal.hw1.ui.controller;
 
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
-import javafx.geometry.Side;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
@@ -13,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import ru.ifmo.ctddev.segal.hw1.algorithm.SimpleIterations;
 import ru.ifmo.ctddev.segal.hw1.algorithm.SimpleIterationsImpl;
@@ -21,7 +15,6 @@ import ru.ifmo.ctddev.segal.hw1.model.Function;
 import ru.ifmo.ctddev.segal.hw1.model.RealFunction;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Created by Daria on 03.12.2015.
@@ -72,7 +65,7 @@ public class SimpleIterationsLimitsController {
         final NumberAxis xAxis = new NumberAxis(MIN_X, MAX_X, 0.1);
         final NumberAxis yAxis = new NumberAxis(MIN_Y, MAX_Y, 0.1);
         final XYChart<Number, Number> sc = new
-                ScatterChart<Number, Number>(xAxis, yAxis);
+                ScatterChart<>(xAxis, yAxis);
         xAxis.setLabel("r");
         yAxis.setLabel("limit");
         sc.setTitle("Simple Iterations Limits");
@@ -89,10 +82,9 @@ public class SimpleIterationsLimitsController {
                 r = rr;
                 Collection<Double> current = simpleIters.getAllLimits(rFun, start);
                 for (Double curY : current) {
-                    Double curX = (double) r;
+                    Double curX = r;
                     series1.getData().add(new XYChart.Data(curX, curY));
                 }
-                System.out.println("Printed path on chart");
             }
         });
     }
